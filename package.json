@@ -1,0 +1,35 @@
+{ "name": "ubborg-sysd-murmurd-pmb",
+  "version": "0.0.1",
+  "description": "Ubborg config generator for murmurd (mumble-server VOIP) with better systemd startup.",
+  "keywords": [],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/ubborg-sysd-murmurd-pmb-js/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/ubborg-sysd-murmurd-pmb-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/ubborg-sysd-murmurd-pmb-js/issues"
+  },
+  "contributors": [],
+
+  "private": false, "license": "ISC",
+
+  "main": "src/setup.mjs",
+  "scripts": { "test": "nodemjs test/all.mjs" },
+  "directories": { "test": "test" },
+
+  "dependencies": {
+    "absdir": "^1.0.6",
+    "objpop": "^0.2.1",
+    "typechecks-pmb": "^0.200620.4",
+    "ubborg-sysd-wants": "^0.1.0"
+  },
+  "devDependencies": {
+    "nodemjs": "^0.1.8"
+  },
+
+
+  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+}
