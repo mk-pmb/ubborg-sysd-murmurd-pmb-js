@@ -1,6 +1,6 @@
 { "name": "ubborg-sysd-murmurd-pmb",
   "version": "0.0.1",
-  "description": "Ubborg config generator for murmurd (mumble-server VOIP) with better systemd startup.",
+  "description": "Ubborg config generator for murmurd (mumble-server VoIP) with better systemd startup.",
   "keywords": [],
 
   "author": "M.K. (https://github.com/mk-pmb)",

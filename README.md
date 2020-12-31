@@ -5,7 +5,7 @@ ubborg-sysd-murmurd-pmb
 <!--/#echo -->
 
 <!--#echo json="package.json" key="description" -->
-Ubborg config generator for murmurd (mumble-server VOIP) with better systemd
+Ubborg config generator for murmurd (mumble-server VoIP) with better systemd
 startup.
 <!--/#echo -->
 
