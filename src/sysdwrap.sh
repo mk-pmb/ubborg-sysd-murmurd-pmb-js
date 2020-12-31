@@ -2,11 +2,11 @@
 # -*- coding: utf-8, tab-width: 2 -*-
 
 
-function sdwrap () {
+function sysdwrap () {
   local INI_OPTS=()
   env | sort
-  sleep 9009d
+  exec sleep 9009d
 }
 
 
-sdwrap "$@"; exit $?
+sysdwrap "$@"; exit $?

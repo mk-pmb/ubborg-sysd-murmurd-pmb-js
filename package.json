@@ -22,9 +22,12 @@
 
   "dependencies": {
     "absdir": "^1.0.6",
+    "dict-to-env-pairs-pmb": "^0.1.0",
+    "map-merge-defaults-pmb": "^0.1.0",
     "objpop": "^0.2.1",
     "typechecks-pmb": "^0.200620.4",
-    "ubborg-sysd-wants": "^0.1.0"
+    "ubborg-add-osusers-to-groups": "^0.1.0",
+    "ubborg-sysd-wants": "^0.1.1"
   },
   "devDependencies": {
     "nodemjs": "^0.1.8"
