@@ -3,7 +3,7 @@
 
 
 function sysdwrap () {
-  local -A INI_OPTS=(
+  local -A INI_OPT=(
     # To generate a default config with explanations, run as not root:
     # murmur-user-wrapper -i
 
@@ -42,26 +42,85 @@ function sysdwrap () {
     [messageburst]=5
     [messagelimit]=1
 
+    # Ice stuff
     [Ice__Warn__UnknownProperties]=1
     [Ice__MessageSizeMax]=65536
     )
 
-  local ACTION="${1:-serve}"; shift
-  sdw_"$ACTION" "$@"; return $?
+  local OP= ARG= RV=
+  local DBGLV="${DEBUGLEVEL:-0}"
+  while [ "$#" -ge 1 ]; do
+    OP="$1"; shift
+    ARG="${OP#*:}"
+    [ "$ARG" == "$OP" ] && ARG=
+    OP="${OP%%:*}"
+    dbgp "op='$OP', arg='$ARG'"
+    sdw_"$OP" "$ARG"; RV=$?
+    dbgp "op='$OP', arg='$ARG', rv=$RV"
+    [ "$RV" == 0 ] || return "$RV"
+  done
 }
 
 
-function sdw_debug () {
-  echo -n 'args:'; printf ' ‹%s›' "$0" "$@"; echo
-  env | sort
-}
+function dbgp () { [ "$DBGLV" -ge 2 ] && echo "D: $*" >&2; return 0; }
 
 
 function sdw_serve () {
-  sdw_debug
-  echo
-  sdw_render_ini
+  mkdir --parents run
+  local INI='run/murmurd.generated.ini'
+  sdw_render_ini >"$INI" || return $?
+  pwd
   exec sleep 9009d
+}
+
+
+function sdw_dircfg () {
+  local PATH_PFX="$1"
+  local INI=
+  dbgp "$FUNCNAME" "$PATH_PFX"
+  for INI in "$PATH_PFX"*.ini; do
+    dbgp "$FUNCNAME" "$INI?"
+    [ -f "$INI" ] || continue
+    sdw_inicfg "$INI" || return $?
+  done
+}
+
+
+function sdw_inicfg () {
+  local INI="$1" KEY= VAL=
+  local LINES=()
+  dbgp "$FUNCNAME" "$INI"
+  readarray -t LINES < <(sed -re 's~^\s+~~' -- "$INI")
+  for VAL in "${LINES[@]}"; do
+    case "$VAL" in
+      '[Ice]' | \
+      '' | '#'* | ';'* ) continue;;
+      '['*']' ) echo "E: unsupported INI section: $VAL in $INI" >&2; return 3;;
+    esac
+    KEY="${VAL%%=*}"
+    VAL="${VAL#*=}"
+    KEY="${KEY//\./__}"
+    dbgp "$FUNCNAME" "$INI" "$KEY=‹$VAL›"
+    INI_OPT["$KEY"]="$VAL"
+  done
+}
+
+
+function sdw_envcfg () {
+  local ENV_PFX="${1:-murmur_}"
+  local KEYS=()
+  readarray -t KEYS < <(env | LANG=C grep -oPe '^\w+=')
+  local KEY= VAL= CUT="${#ENV_PFX}"
+  for KEY in "${KEYS[@]}"; do
+    KEY="${KEY%=}"
+    case "$KEY" in
+      "$ENV_PFX"* ) ;;
+      * ) continue;;
+    esac
+    VAL=
+    eval 'VAL="$'"$KEY"'"'
+    [ -z "$VAL" ] || INI_OPT["${KEY:$CUT}"]="$VAL"
+  done
 }
 
 
@@ -69,14 +128,18 @@ function sdw_render_ini () {
   local KEY= VAL=
   local ICE_OPT=()
   local SORTED=()
-  readarray -t SORTED < <(printf '%s\n' "${!INI_OPTS[@]}" | sort -V)
+  readarray -t SORTED < <(printf '%s\n' "${!INI_OPT[@]}" | sort -V)
   for KEY in "${SORTED[@]}"; do
-    VAL="${INI_OPTS[$KEY]}"
+    VAL=
+    VAL="${INI_OPT[$KEY]}"
     case "$VAL" in
+      '"'*'"' ) ;;
       *[^A-Za-z0-9_-]* ) VAL='"'"$VAL"'"';;
     esac
     case "${KEY,,}" in
-      ice__* ) ICE_OPT+=( "${KEY//__/.}=$VAL" );;
+      ice__* )
+        KEY="${KEY//__/.}"
+        ICE_OPT+=( "$KEY=$VAL" );;
       * ) echo "$KEY=$VAL";;
     esac
   done

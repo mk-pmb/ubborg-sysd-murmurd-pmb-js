@@ -22,7 +22,6 @@
 
   "dependencies": {
     "absdir": "^1.0.6",
-    "dict-to-env-pairs-pmb": "^0.1.0",
     "map-merge-defaults-pmb": "^0.1.0",
     "objpop": "^0.2.1",
     "typechecks-pmb": "^0.200620.4",

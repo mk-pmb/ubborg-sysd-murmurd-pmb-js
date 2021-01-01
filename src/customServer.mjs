@@ -4,7 +4,6 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import absdir from 'absdir';
 import sysdWants from 'ubborg-sysd-wants';
-import dictToEnvPairs from 'dict-to-env-pairs-pmb';
 
 import facts from './facts';
 import homeFile from './homeFile';
@@ -24,7 +23,6 @@ const EX = async function customServer(bun, opt) {
   const mustPop = objPop(opt, { mustBe }).mustBe;
   const svcName = mustPop('nonEmpty str', 'svcName');
   const configDir = `${muHome}/${svcName}.conf.d`;
-  const envPfx = 'murmur_';
 
   await homeFile(bun, {
     path: muWrap,
@@ -43,13 +41,11 @@ const EX = async function customServer(bun, opt) {
         ConditionPathIsDirectory: configDir,
       },
       Service: {
+        SyslogIdentifier: svcName,
         User: muSrv,
         Group: muSrv,
-        WorkingDirectory: muHome,
-        ExecStart: ['', `${muHome}/${muWrap} envcfg:${envPfx}`],
-        Environment: dictToEnvPairs({
-          cfgdir: configDir,
-        }, { pfx: '"' + envPfx, suf: '"' }),
+        WorkingDirectory: configDir,
+        ExecStart: ['', `${muHome}/${muWrap} envcfg dircfg:cfg/ serve`],
       },
     },
   };
