@@ -138,7 +138,7 @@ function sdw_inicfg () {
   local INI="$1" KEY= VAL=
   local LINES=()
   dbgp "$FUNCNAME" "$INI"
-  readarray -t LINES < <(sed -re 's~^\s+~~' -- "$INI")
+  readarray -t LINES < <(sed -re 's!^\s+!!; s!\s*=\s*!=!' -- "$INI")
   for VAL in "${LINES[@]}"; do
     case "$VAL" in
       '[Ice]' | \

@@ -30,11 +30,25 @@ This module exports one function:
   `0` (default) = Don't create the account.
 * `groupIdNum`: GID to use for the murmur user group.
   Ignored unless `uid` is set, too. `0` (defalt) = same as UID.
+* `putIni`: (See chapter "Configuration" below.)
+  An array of config lines (i.e., strings) to put in
+  `/var/lib/mumble-server/${svcName}/cfg/local.ini`.
+  A charset header line might be written in front of your config lines.
+  May also be a dictionary object that maps basenames to such arrays,
+  in which case separate ini files `${basename}.ini` will be created
+  with the lines from the array.
 
 
 
 
 <!--#toc stop="scan" -->
+
+
+Configuration
+-------------
+
+see [docs/sysdwrap.md](docs/sysdwrap.md)
+
 
 
 

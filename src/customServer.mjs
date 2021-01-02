@@ -7,13 +7,12 @@ import sysdWants from 'ubborg-sysd-wants';
 
 import facts from './facts';
 import homeFile from './homeFile';
-
+import svcUnitTemplate from './svcUnitTemplate';
 
 const {
-  muHome,
   muWrap,
-  muSrv,
 } = facts;
+
 
 const relPath = absdir(import.meta, '.');
 const defaultTriggerUnit = 'multi-user.target';
@@ -22,7 +21,6 @@ const defaultTriggerUnit = 'multi-user.target';
 const EX = async function customServer(bun, opt) {
   const mustPop = objPop(opt, { mustBe }).mustBe;
   const svcName = mustPop('nonEmpty str', 'svcName');
-  const configDir = `${muHome}/${svcName}.conf.d`;
 
   await homeFile(bun, {
     path: muWrap,
@@ -31,33 +29,40 @@ const EX = async function customServer(bun, opt) {
     uploadFromLocalPath: relPath('sysdwrap.sh'),
   });
 
-  const svcUnit = {
-    path: svcName,
-    pathPre: '/lib/systemd/system/',
-    pathSuf: '.service',
-    mimeType: 'static_ini; speq',
-    content: {
-      Unit: {
-        ConditionPathIsDirectory: configDir,
-      },
-      Service: {
-        SyslogIdentifier: svcName,
-        User: muSrv,
-        Group: muSrv,
-        WorkingDirectory: configDir,
-        ExecStart: ['', `${muHome}/${muWrap} envcfg dircfg:cfg/ serve`],
-      },
-    },
-  };
+  await EX.putIni(bun, svcName,
+    mustPop('undef | fal | ary | dictObj', 'putIni'));
 
+  const svcUnitSpec = svcUnitTemplate(svcName);
   bun.needs('admFile', [
-    svcUnit,
+    svcUnitSpec,
     sysdWants(mustPop('nonEmpty str', 'triggerUnit',
-      defaultTriggerUnit), true, svcUnit),
+      defaultTriggerUnit), true, svcUnitSpec),
   ]);
 
   mustPop.expectEmpty('Unsupported option(s)');
 };
 
+
+async function putIni(bun, svcName, spec) {
+  if (!spec) { return; }
+  if (Array.isArray(spec)) { return putIni(bun, svcName, { local: spec }); }
+  const mimeType = 'utf8_tw; 20; %3B';
+  const inis = Object.entries(spec).map(function genOneIni([k, v]) {
+    return { path: `${svcName}/cfg/${k}.ini`, mimeType, content: v };
+  });
+  await homeFile(bun, [`${svcName}/`, ...inis]);
+}
+
+
+
+
+
+
+
+Object.assign(EX, {
+
+  putIni,
+
+});
 
 export default EX;
