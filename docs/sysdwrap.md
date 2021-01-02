@@ -8,8 +8,8 @@ There are three important concepts at work here:
   * This will be the working directory where the server will be run.
   * It's also the default place for the database.
 * The systemd _service unit_ file created from
-  [src/svcUnitTemplate.mjs](../src/svcUnitTemplate.mjs).
-* The _wrapper_ script [src/sysdwrap.sh](../src/sysdwrap.sh).
+  [`src/svcUnitTemplate.mjs`](../src/svcUnitTemplate.mjs).
+* The _wrapper_ script [`src/sysdwrap.sh`](../src/sysdwrap.sh).
   Look here for default settings.
 
 The condition setting in the _service unit_ ensures that the server
