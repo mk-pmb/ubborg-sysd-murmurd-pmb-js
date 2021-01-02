@@ -39,7 +39,11 @@ function sysdwrap () {
     [obfuscate]=true
 
     # Network tweaks
-    [bandwidth]=72000
+    [bandwidth]=64k
+    # ^-- Rather conservative. For HQ audio streaming inside a fast LAN,
+    #     you could probably afford 192k even.
+    #     NB: The maximum quality in the GUI slider in the default client
+    #     currently (2021-01-02) goes up to 96k.
     [timeout]=120
     [messageburst]=5
     [messagelimit]=1
@@ -186,6 +190,11 @@ function sdw_render_ini () {
         ICE_OPT+=( "$KEY=$VAL" )
         continue;;
       sysdwrap_* ) continue;;
+      bandwidth )
+        case "$VAL" in
+          *k ) let VAL="${VAL%k} * 1000";;
+          *K ) let VAL="${VAL%k} * 1024";;
+        esac;;
     esac
     echo "$KEY=$VAL"
   done
