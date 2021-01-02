@@ -80,7 +80,26 @@ function sdw_serve () {
     -fg
     ${INI_OPT[sysdwrap_extra_flags]}
     )
+  sdw_configure_supw || return $?
   exec murmurd "${MMD_OPT[@]}" || return $?
+}
+
+
+function sdw_configure_supw () {
+  local VER="$(murmurd --version 2>&1)"
+  case "$VER" in
+    '<F>'*' murmurd -- 1.3.3-1~ppa1~focal1' | \
+    '<F>UBAR' )
+      echo "W: skip configuring superuser password: version $(
+        )${VER#* -- } is too broken." >&2
+      return 0;;
+  esac
+
+  local SUPW="${INI_OPT[sysdwrap_supw]}"
+  case "$SUPW" in
+    '' ) murmurd "${MMD_OPT[@]}" -disablesu; return $?;;
+    * ) murmurd "${MMD_OPT[@]}" -readsupw <<<"$SUPW"; return $?;;
+  esac
 }
 
 
