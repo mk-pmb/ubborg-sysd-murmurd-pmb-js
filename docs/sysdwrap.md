@@ -1,8 +1,8 @@
 ﻿
-Configuring the systemd wrapper
--------------------------------
+Configuring the systemd wrapper for murmurd
+-------------------------------------------
 
-There are three important concepts at work here:
+The important concepts at work here are:
 
 * The _instance directory_, i.e. `/var/lib/mumble-server/${svcName}`.
   * This will be the working directory where the server will be run.
@@ -26,9 +26,9 @@ There, the _wrapper_ will create an ini file based on
   * Indentation is ignored.
   * Space characters around the first `=` in each line will be ignored.
   * Line comments are ignored. That's any line starting with `;` or `#`.
-* environment variables starting with `murmur_`.
-  Usually you won't need this, but maybe you like actual systemd drop-in files
-  better than the `cfg/*.ini` method.
+* environment variables starting with `murmur_`. (strongest)
+  * Usually you won't need this, but maybe you like actual systemd drop-in
+    files better than the `cfg/*.ini` method.
   * For keys that contain dots (probably Ice settings), you have to replace
     those dots with double underscores (`__`).
   * Remember to `systemctl daemon-reload` before you

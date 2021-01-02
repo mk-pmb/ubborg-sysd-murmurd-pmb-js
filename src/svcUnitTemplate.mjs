@@ -8,10 +8,11 @@ const {
   muSrv,
 } = facts;
 
+
 function svcUnitTemplate(svcName) {
   const instanceDir = `${muHome}/${svcName}`;
   return {
-    mimeType: 'static_ini; speq',
+    mimeType: 'static_ini; speq', // ubborg's mimeFx magic at work
     pathPre: '/lib/systemd/system/',
     path: svcName,
     pathSuf: '.service',
