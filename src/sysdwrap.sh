@@ -13,9 +13,9 @@ function sysdwrap () {
     [users]=32
 
     # Paths
-    [database]=
-    [logfile]=
-    [pidfile]=
+    [database]='./murmurd.sqlite'
+    [logfile]='./logs/%y%m%d.%H%M%S.log'
+    [pidfile]='./murmurd.pid'
 
     # Persistence
     [sqlite_wal]=2
@@ -28,12 +28,14 @@ function sysdwrap () {
     [allowhtml]=false
 
     # Access tokens etc.
+    [sysdwrap_supw]=
     [icesecretread]=
     [icesecretwrite]=
     [serverpassword]=
     [certrequired]=true
 
-    # Log file privacy
+    # Logging settings
+    [sysdwrap_extra_flags]= # e.g. '-v'
     [obfuscate]=true
 
     # Network tweaks
@@ -66,11 +68,34 @@ function dbgp () { [ "$DBGLV" -ge 2 ] && echo "D: $*" >&2; return 0; }
 
 
 function sdw_serve () {
-  mkdir --parents run
-  local INI='run/murmurd.generated.ini'
+  local INI='murmurd.ini.gen'
+  sdw_path_tmpl database
+  sdw_path_tmpl logfile
+  sdw_path_tmpl pidfile
+  >>"$INI" || return $?
+  chmod a=,u+rw -- "$INI" || return $?
   sdw_render_ini >"$INI" || return $?
-  pwd
-  exec sleep 9009d
+  local MMD_OPT=(
+    -ini "$INI"
+    -fg
+    ${INI_OPT[sysdwrap_extra_flags]}
+    )
+  exec murmurd "${MMD_OPT[@]}" || return $?
+}
+
+
+function sdw_path_tmpl () {
+  local KEY="$1"
+  local VAL="${INI_OPT[$KEY]}"
+  if [[ "$VAL" == *'%'* ]]; then
+    VAL="${VAL//%%/%% }"
+    VAL="${VAL//%i/$BASH_PID}"
+    printf -v VAL "%($VAL)T"
+    VAL="${VAL//%% /%%}"
+  fi
+  [ "${VAL:0:2}" == ./ ] || VAL="$PWD${VAL:1}"
+  mkdir --parents -- "$(dirname -- "$VAL")"
+  INI_OPT["$KEY"]="$VAL"
 }
 
 
@@ -139,14 +164,23 @@ function sdw_render_ini () {
     case "${KEY,,}" in
       ice__* )
         KEY="${KEY//__/.}"
-        ICE_OPT+=( "$KEY=$VAL" );;
-      * ) echo "$KEY=$VAL";;
+        ICE_OPT+=( "$KEY=$VAL" )
+        continue;;
+      sysdwrap_* ) continue;;
     esac
+    echo "$KEY=$VAL"
   done
   echo
   echo "[Ice]"
   printf '%s\n' "${ICE_OPT[@]}"
 }
+
+
+
+
+
+
+
 
 
 sysdwrap "$@"; exit $?
