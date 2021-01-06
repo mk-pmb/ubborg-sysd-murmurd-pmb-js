@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import dictToEnvPairs from 'dict-to-env-pairs-pmb';
+
 import facts from './facts';
 
 const {
@@ -10,7 +12,7 @@ const {
 
 
 function svcUnitTemplate(svcName) {
-  const instanceDir = `${muHome}/${svcName}`;
+  const instanceDir = `${muHome}/%N`;
   return {
     mimeType: 'static_ini; speq', // ubborg's mimeFx magic at work
     pathPre: '/lib/systemd/system/',
@@ -21,11 +23,15 @@ function svcUnitTemplate(svcName) {
         ConditionPathIsDirectory: instanceDir,
       },
       Service: {
-        SyslogIdentifier: svcName,
+        SyslogIdentifier: '%N',
         User: muSrv,
         Group: muSrv,
         WorkingDirectory: instanceDir,
         ExecStart: ['', `${muHome}/${muWrap} envcfg dircfg:cfg/ serve`],
+        Environment: dictToEnvPairs({
+          registerName: '%N@%H',
+          welcometext: 'Welcome to %N@%H.',
+        }, { pfx: '"murmur_', suf: '"' }),
       },
     },
   };
