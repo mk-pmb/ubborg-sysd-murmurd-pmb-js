@@ -27,7 +27,14 @@ function svcUnitTemplate(svcName) {
         User: muSrv,
         Group: muSrv,
         WorkingDirectory: instanceDir,
+
         ExecStart: ['', `${muHome}/${muWrap} envcfg dircfg:cfg/ serve`],
+        // ^- Hard-coded muHome: systemd v245 doesn't support a placeholder
+        //    for the service user's home directory (only homedir of the
+        //    user that runs systemd itself). We cannot use paths relative
+        //    to the WorkingDirectory either, error message would be
+        //    "Neither a valid executable name nor an absolute path".
+
         Environment: dictToEnvPairs({
           registerName: '%N@%H',
           welcometext: 'Welcome to %N@%H.',
