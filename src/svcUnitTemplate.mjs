@@ -39,6 +39,9 @@ function svcUnitTemplate(svcName) {
           registerName: '%N@%H',
           welcometext: 'Welcome to %N@%H.',
         }, { pfx: '"murmur_', suf: '"' }),
+        ProtectSystem: 'full',
+        PrivateDevices: true,
+        PrivateTmp: true,
       },
     },
   };
